@@ -289,8 +289,10 @@ def get_absolute_values(net, profiles_instead_of_study_cases, **kwargs):
     abs_val = dict()
 
     if profiles_instead_of_study_cases:  # use given profiles
-        for elm_col in [("load", "p_mw"), ("load", "q_mvar"), ("sgen", "p_mw"), ("gen", "p_mw"),
-                        ("storage", "p_mw")]:
+        # for elm_col in [("load", "p_mw"), ("load", "q_mvar"), ("sgen", "p_mw"), ("gen", "p_mw"),
+        #                 ("storage", "p_mw")]:
+        for elm_col in [("load", "max_p_mw"), ("load", "max_q_mvar"), ("sgen", "max_p_mw"), ("gen", "max_p_mw"),
+                        ("storage", "max_p_mw")]:
             abs_val[elm_col] = get_absolute_profiles_from_relative_profiles(
                 net, elm_col[0], elm_col[1], **kwargs)
 
