@@ -221,9 +221,11 @@ def get_absolute_profiles_from_relative_profiles(
     # --- do profile_suffix assumptions if profile_suffix is None
     if profile_suffix is None:
         if element == "load":
-            if multiplying_column == "p_mw":
+            # if multiplying_column == "p_mw":
+            if multiplying_column == "max_p_mw":
                 profile_suffix = "_pload"
-            elif multiplying_column == "q_mvar":
+            # elif multiplying_column == "q_mvar":
+            elif multiplying_column == "max_q_mvar":
                 profile_suffix = "_qload"
         profile_suffix = "" if profile_suffix is None else profile_suffix
 
