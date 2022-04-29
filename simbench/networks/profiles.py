@@ -83,14 +83,14 @@ def get_unused_profiles(net, profile_type, p_or_q=None):
         return (availp | availq) - applied_
     else:
         return get_available_profiles(net, profile_type, p_or_q=p_or_q) - \
-            get_applied_profiles(net, profile_type)
+               get_applied_profiles(net, profile_type)
 
 
 def dismantle_dict_values_to_deep_list(dict_):
     """ returns a list of dict values even if the values of the dict are dicts again. """
     dict_ = OrderedDict(sorted(dict_.items()))
     return [val if not isinstance(val, dict) else dismantle_dict_values_to_deep_list(
-            val) for val in dict_.values()]
+        val) for val in dict_.values()]
 
 
 def dismantle_dict_values_to_list(dict_):
@@ -121,7 +121,7 @@ def profiles_are_missing(net, return_as_bool=True):
             return_[profile_type] = get_missing_profiles(net, profile_type)
     if return_as_bool:
         return bool(len(set.union(*dismantle_dict_values_to_list(return_)).difference(
-                set([np.nan]))))
+            set([np.nan]))))
     else:
         return return_
 
@@ -221,10 +221,8 @@ def get_absolute_profiles_from_relative_profiles(
     # --- do profile_suffix assumptions if profile_suffix is None
     if profile_suffix is None:
         if element == "load":
-            # if multiplying_column == "p_mw":
             if multiplying_column == "max_p_mw":
                 profile_suffix = "_pload"
-            # elif multiplying_column == "q_mvar":
             elif multiplying_column == "max_q_mvar":
                 profile_suffix = "_qload"
         profile_suffix = "" if profile_suffix is None else profile_suffix
@@ -236,7 +234,7 @@ def get_absolute_profiles_from_relative_profiles(
         logger.warning("In %s table, profile column '%s' is missing. Scalings of 1 are assumed." % (
             element, profile_column))
         missing_col_handling = "missing_col_handling"
-        applied_profiles = pd.Series([missing_col_handling]*net[element].shape[0],
+        applied_profiles = pd.Series([missing_col_handling] * net[element].shape[0],
                                      index=net[element].index, dtype=object)
         relative_profiles[missing_col_handling] = 1
 
@@ -262,7 +260,7 @@ def get_absolute_profiles_from_relative_profiles(
         factor = multiplying_column
 
     # --- multiply relative profiles with factor and return results
-    output_profiles = pd.DataFrame(relative_output_profiles*factor, index=index,
+    output_profiles = pd.DataFrame(relative_output_profiles * factor, index=index,
                                    columns=net[element].index)
     return output_profiles
 
@@ -289,14 +287,15 @@ def get_absolute_values(net, profiles_instead_of_study_cases, **kwargs):
         The values are DataFrames with absolute power values.
     """
     abs_val = dict()
+    mapping = {"p_mw": "max_p_mw", "q_mvar": "max_q_mvar"}
 
     if profiles_instead_of_study_cases:  # use given profiles
-        # for elm_col in [("load", "p_mw"), ("load", "q_mvar"), ("sgen", "p_mw"), ("gen", "p_mw"),
-        #                 ("storage", "p_mw")]:
-        for elm_col in [("load", "max_p_mw"), ("load", "max_q_mvar"), ("sgen", "max_p_mw"), ("gen", "max_p_mw"),
-                        ("storage", "max_p_mw")]:
+        print('Using profiles_instead_of_study_cases')
+        for elm_col in [("load", "p_mw"), ("load", "q_mvar"), ("sgen", "p_mw"), ("gen", "p_mw"),
+                        ("storage", "p_mw")]:
+            print(elm_col[0], elm_col[1])
             abs_val[elm_col] = get_absolute_profiles_from_relative_profiles(
-                net, elm_col[0], elm_col[1], **kwargs)
+                net, elm_col[0], mapping[elm_col[1]], **kwargs)
 
     else:  # use predefined study cases
 
@@ -305,9 +304,9 @@ def get_absolute_values(net, profiles_instead_of_study_cases, **kwargs):
                                        columns=net["ext_grid"].index, index=["bc"])
         abs_val[("ext_grid", "vm_pu")] = pd.DataFrame(net.loadcases["Slack_vm"].values.reshape(
             -1, 1).repeat(net["ext_grid"].shape[0], axis=1), columns=net["ext_grid"].index,
-            index=net.loadcases["Slack_vm"].index)
+                                                      index=net.loadcases["Slack_vm"].index)
         abs_val[("ext_grid", "vm_pu")] = pd.concat([slack_base_case,
-                                                   abs_val[("ext_grid", "vm_pu")]])
+                                                    abs_val[("ext_grid", "vm_pu")]])
 
         # --- active and reactive scaling factors
         for elm_col in [("load", "p_mw"), ("load", "q_mvar"), ("sgen", "p_mw")]:
@@ -319,7 +318,7 @@ def get_absolute_values(net, profiles_instead_of_study_cases, **kwargs):
                 assert elm_col[0] == "sgen"
                 assert len(loadcase_type) == 3
                 Idx_wind = net.sgen.index[(net.sgen.type.str.contains("Wind").fillna(False)) |
-                                        (net.sgen.type.str.contains("WP").fillna(False))]
+                                          (net.sgen.type.str.contains("WP").fillna(False))]
                 Idx_pv = net.sgen.index[net.sgen.type.str.contains("PV").fillna(False)]
                 Idx_sgen = net.sgen.index.difference(Idx_wind.union(Idx_pv))
                 net.sgen["loadcase_type"] = ""
@@ -370,7 +369,7 @@ def apply_const_controllers(net, absolute_profiles_values, exclude_elms_dict=Non
                                       "tuple(element, column) or as str, e.g. 'gen.vm_pu'.")
         if values.shape[1]:
             to_exclude = pd.Index([]) if not isinstance(exclude_elms_dict, dict) or elm not in \
-                exclude_elms_dict.keys() else pd.Index(exclude_elms_dict[elm])
+                                         exclude_elms_dict.keys() else pd.Index(exclude_elms_dict[elm])
 
             # check DataFrame shape[0] == time_steps
             if elm in n_time_steps.keys():
