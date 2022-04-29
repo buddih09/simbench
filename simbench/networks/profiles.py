@@ -290,10 +290,8 @@ def get_absolute_values(net, profiles_instead_of_study_cases, **kwargs):
     mapping = {"p_mw": "max_p_mw", "q_mvar": "max_q_mvar"}
 
     if profiles_instead_of_study_cases:  # use given profiles
-        print('Using profiles_instead_of_study_cases')
         for elm_col in [("load", "p_mw"), ("load", "q_mvar"), ("sgen", "p_mw"), ("gen", "p_mw"),
                         ("storage", "p_mw")]:
-            print(elm_col[0], elm_col[1])
             abs_val[elm_col] = get_absolute_profiles_from_relative_profiles(
                 net, elm_col[0], mapping[elm_col[1]], **kwargs)
 
